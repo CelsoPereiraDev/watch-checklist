@@ -1,46 +1,50 @@
 import Logo from "./components/Logo/Logo";
 import Form from "./components/Form/Form";
 import MediaList from "./components/MediaList/MediaList.jsx";
-
-const mediasFilmes =[
-  {
-    title: 'Filme1',
-    checked:false,
-    id:123,
-  },
-  {
-    title: 'Filme2',
-    checked:false,
-    id:1234,
-  }
-]
-const mediasSeries = [
-  {
-    title: 'Serie1',
-    checked:false,
-    id:12345,
-  },
-  {
-    title: 'Serie2',
-    checked:false,
-    id:123456,
-  }
-]
-
+import useLocalStorage from 'use-local-storage-state';
 
 export default function Home() {
+  const [medias,setMedias] = useLocalStorage('medias',{
+    defaultValue:[],
+  });
+   
+  const mediasFilmes = medias.filter((media) => media.checked === false && media.chosemedia === 'Filme') ;
+  const mediasFilmesAssistidos = medias.filter((media)=> media.checked === true && media.chosemedia === 'Filme');
+  const mediasSeries = medias.filter((media) => media.checked === false && media.chosemedia === 'Serie');
+  const mediasSeriesAssistidas = medias.filter((media)=> media.checked === true && media.chosemedia === 'Serie');
+
+  const addMedia = (media) => {
+    const newMedias = [...medias];
+    newMedias.push(media);
+    setMedias(newMedias);
+  };
+
+  const removeMedia = (media) => {
+    const newMedias = [...medias];
+    const mediasToRemove = medias.findIndex((item) => item.id===media.id);
+    newMedias.splice(mediasToRemove,1);
+    setMedias(newMedias);
+  };
+
+  const updateMediaChecked = (media) => {
+    const newMedias = [...medias];
+    const mediasToUpdate = newMedias.findIndex((item) => item.id === media.id);
+    newMedias[mediasToUpdate].checked = !newMedias[mediasToUpdate].checked;
+    setMedias(newMedias);
+};
+
       return (
     <div >
       <Logo />
-      <Form />
+      <Form addMedia={addMedia}/>
       <div className="flex flex-wrap gap-10 justify-center">
-        <MediaList  title="Filmes" medias={mediasFilmes}/>
-        <MediaList title="Séries" medias={mediasSeries}/>
+        <MediaList  title="Filmes" medias={mediasFilmes} removeMedia={removeMedia}   updateMediaChecked={updateMediaChecked}/>
+        <MediaList title="Series" medias={mediasSeries} removeMedia={removeMedia} updateMediaChecked={updateMediaChecked}/> 
       </div>
       <hr className="mt-24 border-2" />
       <div className="flex flex-wrap gap-10 justify-center ">
-        <MediaList  title="Filmes Assistidos" medias={mediasFilmes}/>
-        <MediaList title="Séries Assitidas" medias={mediasSeries}/>
+        <MediaList  title="Filmes Assistidos" medias={mediasFilmesAssistidos} removeMedia={removeMedia} updateMediaChecked={updateMediaChecked}/>
+         <MediaList title="Series Assitidas" medias={mediasSeriesAssistidas} removeMedia={removeMedia} updateMediaChecked={updateMediaChecked}/> 
       </div>
  
       </div>
